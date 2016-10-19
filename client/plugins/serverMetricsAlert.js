@@ -33,7 +33,7 @@ thresholds.ioAlertVal = (process.argv[17]) ? process.argv[17] : 90;
 function checkServersMetrics(query, checkType, level, threshold, time, callback) {
     query = encodeURIComponent(query);
 
-    http.get('http://barman.whoople.net:8086/query?db=sensu&q=' + query, (res) => {
+    http.get('http://$server_monitoring/query?db=sensu&q=' + query, (res) => {
         res.setEncoding('utf8');
         res.on('data', (data) => {
             data = JSON.parse(data);

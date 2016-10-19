@@ -1,0 +1,9 @@
+{
+  "client": {
+    "name": "$name_server",
+    "address": "$adress",
+    "subscriptions": [
+      $subscriptions
+    ]
+  }
+}
