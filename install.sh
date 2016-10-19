@@ -15,14 +15,13 @@ cd "$(dirname "$0")"
 . global.sh
 
 #================== Functions ================================================
-[ !-d $PATH_LIBRARY ] && git clone https://github.com/cmutz/fonction_perso_bash LIBRARY
+[ ! -d $PATH_LIBRARY ] && git clone https://github.com/cmutz/fonction_perso_bash LIBRARY
 . $PATH_LIBRARY/functions.sh
 
 #================== Verification =============================================
 ### you must execute root user
 [ `whoami`  != "root" ] && println error "This script need to be launched as root." && exit 1
 
-# On verifie le nombre d'arguments
 if test $# -eq 1;then
 	println "arguments valides"
 else
@@ -32,8 +31,8 @@ else
 fi
 
 # On verifie la bonne saisie
-if f_checkanswer $1 server owncloud; then
-	println error "\n arg1 attendu : (server/owncloud)"
+if f_checkanswer $1 yes no; then
+	println error "\n arg1 attendu : (yes/no)"
 	exit 2
 fi
 
@@ -44,14 +43,14 @@ if ! type -p lsb_release > /dev/null; then
 fi
 
 ### update/upgrade/install for type distribution  ###
-detectdistro
+f_detectdistro
 dist_vendor=$distro
 println info "\t$distro"
 dist_name=$(lsb_release --short --codename | tr [A-Z] [a-z])
 cd "$(dirname "$0")"		# WARNING: current directory has changed!
 
 if [[ $INSTALL_AUTO = no ]]; then
-	if  ! ask_yn_question "\t*** Vous avez une '$dist_vendor - $dist_name' ***"; then
+	if  ! f_ask_yn_question "\t*** Vous avez une '$dist_vendor - $dist_name' ***"; then
     	read -r -p " *** Renseigner le nom du syteme (ubuntu,debian,linux_mint) *** " dist_vendor
         read -r -p " *** Renseigner le nom de votre version (quantal,wheezy) *** " dist_name
     fi
@@ -74,6 +73,21 @@ apt-get -y install sensu autossh
 curl -sL https://deb.nodesource.com/setup_6.x | bash -
 apt-get install -y nodejs
 
+cp -r $PATH_CLIENT/* /etc/sensu
+
+# on s'assure que tous les fichiers de conf appartiennent à sensu
+chmod +x /etc/sensu/plugins/node_modules/sensu-server-metrics/serverMetrics.js 
+chmod +x /etc/sensu/client/plugin/*
+chown -R sensu:sensu /etc/sensu
+
+# pour le serveur, on lance au démarrage :
+# sensu server, api et uchiwa
+update-rc.d sensu-server defaults
+update-rc.d sensu-api defaults
+update-rc.d uchiwa defaults
+
+# pour les clients, seulement sensu-client
+update-rc.d sensu-client defaults
 
 # pour le fun ......
 $PATH_BASH $PATH_END_SCRIPT/resume_system.sh
