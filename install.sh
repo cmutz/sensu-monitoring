@@ -80,12 +80,6 @@ chmod +x /etc/sensu/plugins/node_modules/sensu-server-metrics/serverMetrics.js
 chmod +x /etc/sensu/client/plugin/*
 chown -R sensu:sensu /etc/sensu
 
-# pour le serveur, on lance au démarrage :
-# sensu server, api et uchiwa
-update-rc.d sensu-server defaults
-update-rc.d sensu-api defaults
-update-rc.d uchiwa defaults
-
 # pour les clients, seulement sensu-client
 update-rc.d sensu-client defaults
 
